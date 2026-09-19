@@ -1,0 +1,208 @@
+{
+  "tp_metadata": {
+    "tp_id": "TSO-2026-TP4",
+    "title": "TP N° 4: Gestión de Recursos e Interbloqueos (Deadlocks)",
+    "catedra": "Teoría de Sistemas Operativos - UNJu Facultad de Ingeniería",
+    "ciclo_lectivo": "2026",
+    "responsable": "Ing. María Fernanda Vázquez",
+    "jtp": "Ing. Fabio D. Argañaraz",
+    "version": "2.0.0"
+  },
+  "security": {
+    "protected": true,
+    "algorithm": "SHA-256-SALTED"
+  },
+  "max_score": 100,
+  "exercises": {
+    "ej1_banquero_necesidad_y_ejecucion": {
+      "weight": 10,
+      "feedback": "Consultar Silberschatz Cap. 7.5.3 (pp. 265-267); Diapositivas 23-25; Ejercicio 1 TP4.",
+      "hashes": {
+        "need_p0_a": "0a8c7ae8f02d4a74170e23f657b97527dea71f0102f18735189c1b51ef8e5688",
+        "need_p0_b": "7518243add4368e30bc55cde67dffbc8a0c37574835660927d8aa4ca0e512c1e",
+        "need_p0_c": "d6acb93e6220e0daa3fa84cb56ca4a5b8dafbe041bc328840990352a9a8fa46e",
+        "need_p0_d": "0465edd9f39f321c6b73d3cad5f65880304ccb210b7f3feb11c0e818f8c889cf",
+        "need_p1_a": "fc4252ec3b4ff330d6a7081c64b1fa69b3b3f9a4d707f2e1eb9c0d00384ec0e4",
+        "need_p1_b": "aafc74eeb680da440651614477219ffe57ea3ba373c587302c184bd429f58a11",
+        "need_p1_c": "dc09b420c58b7c7b1533a16cd54691c599a48539ca392211a11a51941ca001b2",
+        "need_p1_d": "77f46aab38fc15a1a13ca42f8176a24c30344ad5c0da571eb625e6ce095323e6",
+        "need_p2_a": "b618417d55d13cb359eb518777cd3eab66233c27e8f4afa1e06e0fa574e063fb",
+        "need_p2_b": "d1b62d00bcb3556961d785f5deb3edea4c43918fd91d8c3374a204d53c80c531",
+        "need_p2_c": "3f9e26b27aa79015cf761637a7b13d589faaab5ee70bffc65fa7b9fbd8acad48",
+        "need_p2_d": "6c131c99b5bd5e718a7d1f0164b5079c0f3c7ea4b00b623adf466ebdbf308445",
+        "need_p3_a": "c46289c704330d362dfb1e9d725e1f89fe1bfdc3f77b0881403cc5565628664f",
+        "need_p3_b": "538f3fb7a4fcdff03d37077d1c3cf52547720f90f84cc7f3072026495d7e3846",
+        "need_p3_c": "3952e4cdf7fcc165ac33f173c739f40eec9367bfecf31afc6bf9636a23dd13dd",
+        "need_p3_d": "858d8fa9764c0fe5e35950c4cb35546eeeb6c329420aac8f0b96b58b5d62e9ce",
+        "need_p4_a": "025290e9571b5d574b1c8cdcfe66d0ba83390b9eb36631845f3b6b5e655bc21f",
+        "need_p4_b": "9472c6277bd82f47fbdff8ae187fbcd491f920def8d637866cd058c88371907b",
+        "need_p4_c": "c17aa63682b3e3796acebee141619f94072bb5b4048dcebc4bc411474f7ceaaa",
+        "need_p4_d": "8f7c23437c94813514dd71c708524c4093231a4c467c519761871b8463dac7e5",
+        "iter1_proc": "db80298d45bb2e645a1a6a8a824611b1b7fa8d743aba7ea9c1ac74cfea0fee40",
+        "iter2_proc": "2a9f6e38c8f2c572b1a13e449151c6c1f919c831b82e0e3f902e5db6ef60fc2d",
+        "iter3_proc": "d28d6cbd374f607255fd8a75669ddd4258ea54a7b264013d6b59f61152ed9cf2",
+        "iter4_proc": "f7126e157c40a2392c33cf05e4a9db92304515c9fc8f9dfa9a069c0c2fa81a85",
+        "iter5_proc": "452686bc60784ee4128e2c21b7bdb00aeccad5fedc4e9b6de7bc515192e56755",
+        "secuencia_segura": [
+          "c604269a691f73609ce7102834d2d8647dd7dd5b9d6e90d199915b7ed2b767e7",
+          "b69a9ac8db7842ed0c1e501e62884215cd0e7dd841f498569584eabe92197702",
+          "fd267dca109d0f2201ca0a920ebd8b7883ecbc8136ebede35784cdd9b68e6db3",
+          "8c031f5975e957c2740f854fd9fc5ee556adfd172ed3cbef9d7729c2816f7817",
+          "f3ba79015f12880bf3af49a9a9f19d0edc6ec5e3ec69094f19a751fd98ddca2f",
+          "79be5af1156123adc9a18ed75efcc643e0806413493e5e69e2a9b5daece7e0a0",
+          "50d4ea129a1a653cdb2cab38aede9c3b8439b3ac8e69c468bc52bd2a7deeb6d9",
+          "361a041bff89e91079554df50b211b0693f163264dfc48356bac9efcebabd579"
+        ],
+        "estado_sistema": "50545f121680c5b1324a3ce619f9c405912c04d478402d821bb2720df1077e15"
+      }
+    },
+    "ej2_condiciones_riesgo_coffman": {
+      "weight": 10,
+      "feedback": "Consultar Silberschatz Cap. 7.1-7.4 (pp. 257-264); Stallings Cap. 6.1-6.2; Diapositivas 5 y 12; Ejercicio 1.d TP4.",
+      "hashes": {
+        "cond_exclusion_mutua": "8c85e504f7a0df10d84837c1d9458a8754a77dcfa11539f181252813745828d1",
+        "just_exclusion_mutua": "6c6f43f70779b7f46361811a848e5e9c2f74226097a79e8459deef375103a2ff",
+        "cond_retener_esperar": "06cb1c898ced30a9072adb8f537477fcdcf77c18c12a4622ef5598c1c76d239e",
+        "just_retener_esperar": "1b59a7db4236837b4bc247fee9f1afc7b8001fc3a9c6262c5402af80838d7c0a",
+        "cond_no_expropiacion": "5475ab755df96871d943308d5fd4f3d09b8a88c882c6dd9dba832a43807db32d",
+        "just_no_expropiacion": "52ee3f3da43f3c63fc0547f70ddd7dd576e653c51825482f0abae54bfeb333fe",
+        "cond_espera_circular": "6fc0e21533454b271e99c886463f890bb60dbb63ef23eadacde9d152bb6b58a1",
+        "just_espera_circular": "5f51b0c783de08911b419e6e89b585588efea72f9731ec9a9efc5f163d381a99",
+        "recurso_mayor_restriccion": "ea36171a564d5d49f669546e244235e1937bc5245a2ac4fafe8a6f6d21d10a2e"
+      }
+    },
+    "ej3_solicitud_dinamica_p1": {
+      "weight": 10,
+      "feedback": "Consultar Silberschatz Cap. 7.5.4 (pp. 267-268); Diapositiva 26; Ejercicio 1.e TP4.",
+      "hashes": {
+        "sol_menor_necesidad": "334756ef0e802efd305e84390c81e244bf80b0d6281de97ed17af9dd2ef176e6",
+        "sol_menor_disponible": "f813277d1cb08faf5077a6ca05cccf826b2d475ab54e710d734cf77dfd446cff",
+        "disp_sim_a": "f5350344dd50d2fae636f4b541433b6ef1a9301de678eb2df95ba50bbc037a5e",
+        "disp_sim_b": "0325f19987f273fd4f3f21fefa1e5f1a0528279fc197af189f239cd79472d0a6",
+        "disp_sim_c": "9074dc8f2e82ba93144cf807b62f3f96b1df89eef8457be6f72d90ea40c17055",
+        "disp_sim_d": "8db0e996db84da993e4d4b7aed6c0ca99c2c4eb1791d38af0b028c0be5e88d22",
+        "puede_concederse": "c8de2fefd6ef6530d3ee207873311740725667a0410ea5d2b983837d6b5a874f",
+        "mantiene_seguro": "c291d631d9b18fcb4d903911bbfa3b195360635879d9f4f3c3a1dcc5a75df546"
+      }
+    },
+    "ej4_reduccion_grafos_tabla": {
+      "weight": 10,
+      "feedback": "Consultar Carretero Cap. 4.5.1 (pp. 142-145); Diapositivas 32-35; Ejercicio 2 TP4.",
+      "hashes": {
+        "red_proc_1": "984ff1adf3a0c1b11b52a23996d39687c817fe692ae7a2c3f33cbb1e36c0588b",
+        "red_lib_1_a": "8a145f779bed7c089bdf28f1615537d238720b464c74d8a05bc3355fe73776d4",
+        "red_lib_1_b": "2816df7624d3516592079812e5aa058667abbd3483670d7132998830b108d253",
+        "red_lib_1_c": "870f84ecac056df565ff3f8f07ee6661ba2d699fb1e8c5d2c0814eb7a8340bc1",
+        "red_disp_1_a": "b6f9217a4be6f7ded238899e44d9eb30adf1733c52d1109da8f8f9b4f655975b",
+        "red_disp_1_b": "af3ae7b91d00b69021ac4ad95b434039b8f38acc33445d4f9c6f2968b9db4eee",
+        "red_disp_1_c": "b515e6f2adf6f3d6312b49924bea62694f73468361a5b752e549afece2f99787",
+        "red_proc_2": [
+          "7d2c2328415dcec031096ffd135bf9f237649d3b70cd6286fde30d36dc5e1c7d",
+          "20ecdd813b2756783d160b5455480f2450d8f0c5383ad99ded43e0b4be4ff07c"
+        ],
+        "red_disp_2_a": [
+          "da30ecb53eefbbf4d786df6621427652c0b8f667c5d926395a6eb259827b5f46",
+          "49cc45643f31e71f4bf706aa5964572a9b4cd2380755965addde1a20671ad06a"
+        ],
+        "red_disp_2_b": "db977f46bef66692178ba72a61622b35e768a030e513bf2a23432248912a048f",
+        "red_disp_2_c": "276a6c820f3a2c163f64205734adb4101540155b6b9d07e5ccc7a1e8c14b1277",
+        "grafo_reducido_total": "55d25329430e987b20854060e7e4dffe317fc75580930488cd1be97dc5cc5bf2",
+        "existe_interbloqueo": "4772ccf18eab07028e410362f2cbac93327565925d6ff30e5fe2e683eaa642d8"
+      }
+    },
+    "ej5_modelado_rag_matrices": {
+      "weight": 10,
+      "feedback": "Consultar Silberschatz Cap. 7.5.3 (pp. 265-267); Diapositiva 27; Ejercicio 3.a TP4.",
+      "hashes": {
+        "disp_rag_a": "4a603d0f474d911f35530d5186418b91b9b34a4e66a010bdb0d220b1b740647c",
+        "disp_rag_b": "d5cb14b681e907a0b0997f925ad4107a438497efef4ab1cbdc5de069b447fa02",
+        "disp_rag_c": "74e1135bd8e48d33178c806e83cc7603fa0b8bec318e33bfc9a1160326b68209",
+        "alloc_p0_a": "66984e218541efb3136d9fdd33706af8eb5eab8e603d9d62a04572806170bfc2",
+        "alloc_p0_b": "d63dabbd828e263ef6b51155db634b721ddbc1e651c8ca26cf6b16d739f7ea59",
+        "alloc_p0_c": "c9eea0f141dcfa9757428c9c916d839a68a81fc81d4921adaae6772651de980f",
+        "alloc_p1_a": "0f09dfdc96267c38608a3cdc36e0d7e290ddb40bf0d0f0470c0453f82ff619b6",
+        "alloc_p1_b": "bb33b8a8ae860c1fb78406becbdf7609f57e325450cd6c3219102424ebcd12f0",
+        "alloc_p1_c": "539fbf52860dc78d2cedf8dda9d024f9a1b117c7bafbd15c54d9f9370d12f826",
+        "alloc_p2_a": "ce996d273e4eea228e64dcda547e10e24011a8449d17cf6b077b92a56647a7a9",
+        "alloc_p2_b": "384b0304e25f27a46697d99be62040d53330ac26f8c1d92aad49ae5688615625",
+        "alloc_p2_c": "0098f0da833da1e48dbf8ca7236c359e0226910595d41a7a6adff70e921e1b15",
+        "alloc_p3_a": "407315765f8f3be97a0a490eb8deab9fc6b8d0611a666d7d32313262071f3e75",
+        "alloc_p3_b": "e844707b677c5c59c28cb31254bdc643545a11cccb951d37e3ee0c98944ecc1d",
+        "alloc_p3_c": "64a4e6ca8cce93c7c4798b9bdbba109b766e3565305e9b7c840edce195ba8c2f",
+        "alloc_p4_a": "3c0b853b032021bb7ddca0f9925a337563fbe76f7d63740ec711ce17a8b1be27",
+        "alloc_p4_b": "49fa08b9f1476d9156842dcc02911127bc53f6f8804adf106c0615dd3f5ed4cb",
+        "alloc_p4_c": "91c1e2f8aa683327cf894ce10434ab8438bbbcc0e6b03b788a898be4c9ce62ea",
+        "need_p0_a": "59f6253f880ee89fa3c1d74347ec0056dffe7c6feed408da27a07d5b2086e8cf",
+        "need_p0_b": "8791edcfbe5f1bb648cfec759ab20f470cb2cbf305d37fe4427cc6f598ef8194",
+        "need_p0_c": "56513c9b4d8c4e893def0ad451c9d3f5a8d7fabfff11b2e19eb39f9447f4488b",
+        "need_p1_a": "823dbfe9be606dd876ba9ce11dbcf6b184c9d1cf141ac9fc9b8e89f0ebb0fe18",
+        "need_p1_b": "383cc35d24991488591e2882c368df046ad547f0d1766b646e17629df3cf4222",
+        "need_p1_c": "0435bb4a917e2250d3ee973c334e3ac8344d91697a92bfb0227f254b632018b4",
+        "need_p2_a": "d284f35ab80428436ade0eb0f9cfeaae23c4bd534a7720d70d0f5508d19e00db",
+        "need_p2_b": "171d4fad204b2d770cb0c5ec00adb7e4c7eed599085e3590737275fe61b09a9c",
+        "need_p2_c": "a78967f26aeca02e94cbbdba86c8c92e5a5b7555b051ec6702f93ef23c1101c5",
+        "need_p3_a": "5f14340002454edb33791906ef38f77bf40ed3362cf942dfb7c758158fb3b439",
+        "need_p3_b": "7581ab8e871dc2f3c217553d6690e2d3333d0adce3d7f604a7f2d3303960fb33",
+        "need_p3_c": "936be71eadbf6f2de429bed60ad0372673da9c31379a124ef39920dbe062d6a0",
+        "need_p4_a": "a032ded6745e8823d79cb1581332bfa0963c1dc1778699db87e66c9b6cb31df8",
+        "need_p4_b": "cb4a654126bd9c75a3b1d04cf1053578315dfae73486559c7c14b13e0fb7bf7c",
+        "need_p4_c": "3740d9f8e79b7ff0f296a70ca9631e276e6020d3d4140453f98f63c96a4b7ebd"
+      }
+    },
+    "ej6_evaluacion_solicitudes_rag": {
+      "weight": 10,
+      "feedback": "Consultar Silberschatz Cap. 7.5.3; Diapositiva 27; Ejercicio 3.b-d TP4.",
+      "hashes": {
+        "estado_inicial_seguro": "a2235fa5afc1962f6ab1b3ca302b1b7206e9f16eff536b02a14eaab216913277",
+        "atender_p0": "3b580b7ffbf322b49d2e71fb603cc3f44fd469a8594d545cab0516605fbbd9a5",
+        "atender_p1": "40c6ef0d420a9b8fec69dc74e7345a13fcc22d10747b7d0f643cb03f542f2aa3"
+      }
+    },
+    "ej7_deteccion_bloqueos_multi_instancia": {
+      "weight": 10,
+      "feedback": "Consultar Silberschatz Cap. 7.6.2 (pp. 269-271); Stallings Cap. 6.4; Diapositivas 36-39; Ejercicio 4.a TP4.",
+      "hashes": {
+        "finalizo_alguno_inicial": "f5a8fc6cc196542a8bae747d42d862c3bdc3274db25d854c126c8db02d4e6df7",
+        "existe_bloqueo": "852b0c8322477425036ec0925481ee85e02cad5087b64afaedf9ec34da048acc",
+        "cantidad_procesos_bloqueados": "7456f492933aed2b5618ff233a1c936e8099fbb3cc9ad11c4dd0c4e7227ee260",
+        "procesos_bloqueados_lista": "da4609ac9464b448a1347a9334f6a97a56f02bebeea5c1c1453ff72c406950dc"
+      }
+    },
+    "ej8_recuperacion_seleccion_victima": {
+      "weight": 10,
+      "feedback": "Consultar Silberschatz Cap. 7.7 (pp. 271-274); Tanenbaum Cap. 6.5; Diapositivas 40-44; Ejercicio 4.b TP4.",
+      "hashes": {
+        "proceso_victima": "408b233edfe433a624d52166ba9f3c962b007ab7fbdecfb24421a2ec70a6e82d",
+        "disp_recup_a": "f35bde45e3a64f9b6a5dcad6a626a77f3561b4d32836750ecfce3ecabf3a5503",
+        "disp_recup_b": "37ab513e9e6de2bda7d65f83ccdfec4b7acbcbc6e0c9c0950bc67c3fd42d0323",
+        "disp_recup_c": "2391b85d78c448c8f8e02708fa474cef680fd949a6635dcba5cab41e33053f8d",
+        "disp_recup_d": "f80763bd88645a0317625b4c8ac3610b777a6c3be012b676bb3b3cc599d44d16",
+        "primer_proceso_desbloqueado": "d56d5c1693187ac21da6b9de2aeea75cc5290b2b1436d691a9c750c41a0bdc4f",
+        "recupera_completo": "c4a004754796fe9d199345b09912e9329253630ba1f20a3949874f431cfffbff"
+      }
+    },
+    "ej9_solicitud_p2_actualizacion": {
+      "weight": 10,
+      "feedback": "Consultar Silberschatz Cap. 7.5.4 y 7.6; Diapositivas 26 y 37; Ejercicio 4.c TP4.",
+      "hashes": {
+        "sol_p2_menor_necesidad": "f5c26a1b7c8c8875381683a4cb7aed1f5905a0c88d89789bbd5835b8c40c84a2",
+        "sol_p2_menor_disponible": "1e29f29601750271e9c9329686592b368059d6b2824a48863ddae7bdeee38e68",
+        "disp_p2_a": "4150b983f698e7cb901da21014e55774758df847026084b42c64c1403e545086",
+        "disp_p2_b": "c58e316120aefdf4b510df6ae3ac727b8aeef5c61828f69d063633422cc78453",
+        "disp_p2_c": "ae0fb6ae2b10ba9e04ab8d4a88bdd5010d5ac69af0978441e073c2723985fe60",
+        "disp_p2_d": "521d49502e5b526c6c722224275784f3c5497fd5ea40e1c0fa59f48b01c00238",
+        "surge_interbloqueo": "a0f0c15034ed259f2228aac680be2fb92ff210edcb3b4c79a95f1e99da4b45e2"
+      }
+    },
+    "ej10_estrategias_combinadas_jerarquia": {
+      "weight": 10,
+      "feedback": "Consultar Silberschatz Cap. 7.8 (pp. 274-275); Stallings Cap. 6.6; Diapositiva 47.",
+      "hashes": {
+        "clase_swap": "39c3e73750e24db637963e5e97b9a8bf9ab9ca00287487789c1c1416985f658b",
+        "clase_procesos": "c39d657eaf369aa561a86977334583371b2e535d9283d7fc34101ab2065954b4",
+        "clase_memoria": "2cd7df2342a3cd2bfd2a41204b4042fdc8f3c84ca5676d98968116d74824322c",
+        "mecanismo_interclase": "0422551d4b521b894f111ac41d5ae116ecad4a2d7366fb4d97cae695a00d462a"
+      }
+    }
+  }
+}

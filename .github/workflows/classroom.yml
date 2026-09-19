@@ -1,0 +1,39 @@
+name: GitHub Classroom Autograding - TP 4
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  evaluacion-autograding:
+    name: Autograding Tests - TP4
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+
+    steps:
+      - name: Checkout del Repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Entorno Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verificar Archivo de Respuestas
+        run: |
+          if [ ! -f "respuestas_tp4.json" ]; then
+            echo "::error file=respuestas_tp4.json::No se encontró el archivo 'respuestas_tp4.json'. Recuerda resolver los ejercicios en index.html, descargar tus respuestas y colocar el archivo JSON en la raíz del repositorio antes de hacer git push."
+            exit 1
+          fi
+
+      - name: Ejecutar Suite de Evaluación Automática
+        run: |
+          python autograder_tp4.py respuestas_tp4.json

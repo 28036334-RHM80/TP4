@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TP N° 4: Gestión de Recursos e Interbloqueos (Deadlocks) | TSO - UNJu FI</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Librerías de Vanguardia para Drag & Drop y Gamificación -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <div class="container">
+    <!-- ==================== HEADER HERO ==================== -->
+    <header class="header-hero">
+      <div class="header-meta">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span class="badge-tag green">🎓 UNJu — Facultad de Ingeniería</span>
+          <span class="badge-tag purple">Ingeniería Informática / Lic. en Sistemas</span>
+          <span class="badge-tag cyan">Ciclo Lectivo 2026</span>
+        </div>
+        <button id="theme-toggle-btn" class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.8rem;">🌓 Tema</button>
+      </div>
+
+      <h1 class="main-title">Trabajo Práctico N° 4: Gestión de Recursos e Interbloqueos</h1>
+      <p class="subtitle">Laboratorio de Cátedra: Cálculo de Matrices, Simulación del Algoritmo del Banquero, Reducción Práctica de Grafos y Selección de Víctimas</p>
+
+      <div class="academic-info">
+        <div><strong>Cátedra:</strong> Teoría de Sistemas Operativos (TSO)</div>
+        <div><strong>Responsable de Cátedra:</strong> Ing. María Fernanda Vázquez</div>
+        <div><strong>Jefe de Trabajos Prácticos:</strong> Ing. Fabio D. Argañaraz</div>
+        <div><strong>Modalidad:</strong> Individual — Autoevaluativo + Exportación JSON para GitHub Classroom</div>
+      </div>
+
+      <!-- Datos del Estudiante -->
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+        <div>
+          <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">NOMBRE Y APELLIDO *</label>
+          <input type="text" id="student-name" class="custom-select" placeholder="Ej: Juan Pérez" style="font-family:inherit;">
+        </div>
+        <div>
+          <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">DNI / LEGAJO *</label>
+          <input type="text" id="student-dni" class="custom-select" placeholder="Ej: 42123456" style="font-family:inherit;">
+        </div>
+        <div>
+          <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">CARRERA</label>
+          <input type="text" id="student-career" class="custom-select" value="Ingeniería Informática" style="font-family:inherit;">
+        </div>
+        <div>
+          <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">USUARIO DE GITHUB</label>
+          <input type="text" id="student-github" class="custom-select" placeholder="Ej: juanperez-fi" style="font-family:inherit;">
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== STICKY TOOLBAR ==================== -->
+    <div class="sticky-toolbar">
+      <div class="progress-container">
+        <div class="progress-labels">
+          <span>Progreso de Autoevaluación</span>
+          <span id="progress-percentage">0% (0/10 completados)</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="btn btn-outline-amber" id="btn-open-biblio-all">📚 Guía Bibliográfica</button>
+        <button class="btn btn-secondary" id="btn-import-json">📥 Importar JSON</button>
+        <input type="file" id="file-import-input" accept=".json" style="display:none;">
+        <button class="btn btn-outline-blue" id="btn-git-guide">🚀 Guía Git / GitHub</button>
+        <button class="btn btn-primary" id="btn-export-json" disabled>💾 Exportar Respuestas (.json)</button>
+      </div>
+    </div>
+
+    <!-- ==================== LABORATORIO INTERACTIVO (SIMULADORES EMBEBIDOS) ==================== -->
+    <section class="simulator-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span>🔬 Laboratorio Visual: RAG Studio y Banco de Dijkstra</span>
+        </div>
+        <div class="lab-tabs">
+          <button class="lab-tab-btn active" id="tab-btn-rag" data-tab="rag">🕸️ RAG Studio (Grafo SVG)</button>
+          <button class="lab-tab-btn" id="tab-btn-banker" data-tab="banker">🏦 Banco de Dijkstra (Banquero)</button>
+        </div>
+      </div>
+
+      <!-- PANEL 1: RAG STUDIO -->
+      <div id="panel-rag-studio" class="rag-cockpit">
+        <div class="rag-canvas-wrapper">
+          <div class="rag-canvas-header">
+            <span>Lienzo Visual del Grafo de Asignación de Recursos (RAG)</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary" id="rag-btn-preset-silber" style="padding: 3px 8px; font-size: 0.75rem;">Preset Silberschatz</button>
+              <button class="btn btn-secondary" id="rag-btn-preset-deadlock" style="padding: 3px 8px; font-size: 0.75rem;">Preset Ciclo (Deadlock)</button>
+              <button class="btn btn-secondary" id="rag-btn-preset-ej2" style="padding: 3px 8px; font-size: 0.75rem;">Preset Ejercicio 2</button>
+            </div>
+          </div>
+          <svg id="rag-svg-canvas" class="rag-svg-container" viewBox="0 0 700 400"></svg>
+        </div>
+
+        <div class="rag-sidebar">
+          <div>
+            <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">Controles del RAG</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Analiza ciclos dirigidos y simula la reducción gráfica paso a paso.</p>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="btn btn-primary" id="rag-btn-detect-cycles">🔍 Detectar Ciclos</button>
+              <button class="btn btn-secondary" id="rag-btn-step-reduce">⚡ Reducir Grafo (Paso a Paso)</button>
+              <button class="btn btn-secondary" id="rag-btn-reset">🔄 Reiniciar Grafo</button>
+            </div>
+          </div>
+
+          <div class="rag-status-card safe" id="rag-status-card">
+            <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;" id="rag-status-title">Diagnóstico: Sistema Seguro</div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);" id="rag-status-desc">No se detectan ciclos críticos. Los recursos disponibles permiten completar los procesos.</div>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.78rem;">
+            <div style="font-weight: 700; margin-bottom: 4px; color: var(--text-secondary);">Leyenda Visual:</div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+              <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#38bdf8;"></span>
+              <span>Procesos (Pi)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+              <span style="display:inline-block; width:14px; height:14px; border-radius:2px; background:#1e293b; border:1px solid #a855f7;"></span>
+              <span>Clases de Recursos (Rj)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+              <span style="display:inline-block; width:18px; height:2px; background:#10b981;"></span>
+              <span>Arista Asignación (Rj &rarr; Pi)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="display:inline-block; width:18px; height:2px; background:#f59e0b; border-bottom:1px dashed #f59e0b;"></span>
+              <span>Arista Solicitud (Pi &rarr; Rj)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: SIMULADOR BANQUERO -->
+      <div id="panel-banker-studio" class="banker-cockpit" style="display:none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-secondary active" id="banker-btn-load-ej1">Cargar Escenario Ejercicio 1 (A,B,C,D)</button>
+            <button class="btn btn-secondary" id="banker-btn-load-silber">Cargar Escenario Silberschatz (A,B,C)</button>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-secondary); margin-left: 6px;">
+              <span>⏱️ Velocidad Auto:</span>
+              <select id="banker-speed-select" class="custom-select" style="padding: 4px 8px; font-size: 0.8rem; width: auto; background: var(--bg-card-elevated);">
+                <option value="1800" selected>Lento (1.8s)</option>
+                <option value="1000">Normal (1.0s)</option>
+                <option value="500">Rápido (0.5s)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-secondary" id="banker-btn-step-safety" style="border-color: var(--accent-blue); color: var(--accent-blue); font-weight: 700;">⏭ Paso a Paso</button>
+            <button class="btn btn-primary" id="banker-btn-run-safety">▶ Auto-Ejecutar</button>
+            <button class="btn btn-outline-amber" id="banker-btn-test-request">🧪 Test Solicitud Dinámica</button>
+            <button class="btn btn-secondary" id="banker-btn-reset">🔄 Reiniciar</button>
+          </div>
+        </div>
+
+        <div class="matrices-grid">
+          <div class="matrix-card" style="grid-column: 1 / -1;">
+            <div class="matrix-card-title">
+              <span>Vector de Recursos Disponibles (Available / Work)</span>
+              <span id="banker-avail-state-badge" class="badge-tag green">Estado: Seguro</span>
+            </div>
+            <table class="matrix-table" id="table-banker-avail"></table>
+          </div>
+
+          <div class="matrix-card">
+            <div class="matrix-card-title"><span>Matriz Asignación (Allocation)</span></div>
+            <table class="matrix-table" id="table-banker-alloc"></table>
+          </div>
+
+          <div class="matrix-card">
+            <div class="matrix-card-title"><span>Demanda Máxima (Max)</span></div>
+            <table class="matrix-table" id="table-banker-max"></table>
+          </div>
+
+          <div class="matrix-card">
+            <div class="matrix-card-title"><span>Matriz Necesidad (Need = Max - Alloc)</span></div>
+            <table class="matrix-table" id="table-banker-need"></table>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Traza de Ejecución del Banquero:</h4>
+          <div class="banker-trace-box" id="banker-trace-log">
+            Presiona 'Ejecutar Algoritmo de Seguridad' para visualizar paso a paso los cambios en Work y Finish.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== EJERCICIOS AUTOEVALUATIVOS ==================== -->
+    <main class="exercises-section">
+
+      <!-- EJERCICIO 1 (TP4.old Ejercicio 1.a y 1.c) -->
+      <article class="exercise-card" id="card-ej1_banquero_necesidad_y_ejecucion">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-green);">EJERCICIO 1 (10 PUNTOS) — BANCO DE DIJKSTRA [ESCENARIO EJ. 1]</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Algoritmo del Banquero: Matriz Necesidad y Tabla de Ejecución</h3>
+        
+        <div class="lab-callout banker">
+          <span class="lab-callout-badge">🏦 Laboratorio: Banco de Dijkstra</span>
+          <span class="lab-callout-action">
+            <strong>Pestaña superior:</strong> <em>Banco de Dijkstra (Banquero)</em> &nbsp;|&nbsp;
+            <strong>Caso a seleccionar:</strong> Haz clic en el botón <code>Cargar Escenario Ejercicio 1 (A,B,C,D)</code>. Puedes usar <code>⏭ Paso a Paso</code> o <code>▶ Auto-Ejecutar</code> para ver la traza en vivo.
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          Considérese la siguiente instantánea con cuatro tipos de recursos (A, B, C, D) y vector inicial <strong>Disponible = (2, 3, 1, 1)</strong>, modelada en el <strong>Banco de Dijkstra &rarr; Escenario Ejercicio 1</strong>.<br>
+          <strong>a) Completa la matriz Necesidad (Need = Max - Asignación)</strong> escribiendo los valores numéricos calculados.<br>
+          <strong>b) Completa la tabla de ejecución</strong> indicando el proceso ejecutado en cada iteración y ordena las píldoras inferiores para formar la secuencia segura.
+        </p>
+
+        <!-- Tabla de Estado y Matriz Necesidad para Completar -->
+        <div style="overflow-x: auto; margin-bottom: 18px;">
+          <table class="matrix-table" style="max-width:850px;">
+            <thead>
+              <tr>
+                <th rowspan="2">Proceso</th>
+                <th colspan="4">Asignación</th>
+                <th colspan="4">Máximo (Max)</th>
+                <th colspan="4" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">Matriz Necesidad (A completar)</th>
+              </tr>
+              <tr>
+                <th>A</th><th>B</th><th>C</th><th>D</th>
+                <th>A</th><th>B</th><th>C</th><th>D</th>
+                <th style="color:var(--accent-blue);">A</th>
+                <th style="color:var(--accent-blue);">B</th>
+                <th style="color:var(--accent-blue);">C</th>
+                <th style="color:var(--accent-blue);">D</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>P0</strong></td><td>0</td><td>0</td><td>1</td><td>2</td><td>0</td><td>3</td><td>1</td><td>2</td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p0_a"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p0_b"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p0_c"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p0_d"></td>
+              </tr>
+              <tr>
+                <td><strong>P1</strong></td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>3</td><td>2</td><td>2</td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p1_a"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p1_b"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p1_c"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p1_d"></td>
+              </tr>
+              <tr>
+                <td><strong>P2</strong></td><td>1</td><td>3</td><td>3</td><td>0</td><td>2</td><td>3</td><td>4</td><td>2</td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p2_a"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p2_b"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p2_c"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p2_d"></td>
+              </tr>
+              <tr>
+                <td><strong>P3</strong></td><td>0</td><td>2</td><td>1</td><td>2</td><td>0</td><td>4</td><td>5</td><td>2</td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p3_a"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p3_b"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p3_c"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p3_d"></td>
+              </tr>
+              <tr>
+                <td><strong>P4</strong></td><td>1</td><td>0</td><td>1</td><td>2</td><td>1</td><td>1</td><td>5</td><td>3</td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p4_a"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p4_b"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p4_c"></td>
+                <td><input type="number" min="0" max="20" class="matrix-input" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="need_p4_d"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tabla de Ejecución del Banquero -->
+        <h4 style="font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Tabla de Ejecución del Algoritmo de Seguridad:</h4>
+        <div style="overflow-x: auto; margin-bottom: 18px;">
+          <table class="matrix-table" style="max-width:650px;">
+            <thead>
+              <tr>
+                <th>Iteración</th>
+                <th>Trabajo (Work Inicial)</th>
+                <th>Proceso Ejecutado</th>
+                <th>Recursos Liberados (Alloc)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1</strong></td>
+                <td>(2, 3, 1, 1)</td>
+                <td>
+                  <select class="custom-select" style="width:110px; padding:4px 8px;" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="iter1_proc">
+                    <option value="">-- Proceso --</option>
+                    <option value="p0">P0</option><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4</option>
+                  </select>
+                </td>
+                <td>(0, 0, 1, 2)</td>
+              </tr>
+              <tr>
+                <td><strong>2</strong></td>
+                <td>(2, 3, 2, 3)</td>
+                <td>
+                  <select class="custom-select" style="width:110px; padding:4px 8px;" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="iter2_proc">
+                    <option value="">-- Proceso --</option>
+                    <option value="p0">P0</option><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4</option>
+                  </select>
+                </td>
+                <td>(1, 0, 0, 1)</td>
+              </tr>
+              <tr>
+                <td><strong>3</strong></td>
+                <td>(3, 3, 2, 4)</td>
+                <td>
+                  <select class="custom-select" style="width:110px; padding:4px 8px;" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="iter3_proc">
+                    <option value="">-- Proceso --</option>
+                    <option value="p0">P0</option><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4</option>
+                  </select>
+                </td>
+                <td>(1, 3, 3, 0)</td>
+              </tr>
+              <tr>
+                <td><strong>4</strong></td>
+                <td>(4, 6, 5, 4)</td>
+                <td>
+                  <select class="custom-select" style="width:110px; padding:4px 8px;" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="iter4_proc">
+                    <option value="">-- Proceso --</option>
+                    <option value="p0">P0</option><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4</option>
+                  </select>
+                </td>
+                <td>(0, 2, 1, 2)</td>
+              </tr>
+              <tr>
+                <td><strong>5</strong></td>
+                <td>(4, 8, 6, 6)</td>
+                <td>
+                  <select class="custom-select" style="width:110px; padding:4px 8px;" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="iter5_proc">
+                    <option value="">-- Proceso --</option>
+                    <option value="p0">P0</option><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4</option>
+                  </select>
+                </td>
+                <td>(1, 0, 1, 2)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Secuencia segura y estado -->
+        <div class="form-grid">
+          <div>
+            <label>Secuencia Segura Obtenida (Arrastrar las píldoras en el orden de despacho):</label>
+            <div class="sequence-strip" id="seq-strip-ej1" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="secuencia_segura">
+              <div class="seq-pill" data-id="p0">P0</div>
+              <div class="seq-pill" data-id="p1">P1</div>
+              <div class="seq-pill" data-id="p2">P2</div>
+              <div class="seq-pill" data-id="p3">P3</div>
+              <div class="seq-pill" data-id="p4">P4</div>
+            </div>
+          </div>
+          <div>
+            <label>Diagnóstico del Estado del Sistema:</label>
+            <div class="switch-group" data-ex="ej1_banquero_necesidad_y_ejecucion" data-item="estado_sistema" style="margin-top:8px;">
+              <button type="button" class="switch-btn yes" data-val="seguro">Estado Seguro</button>
+              <button type="button" class="switch-btn no" data-val="inseguro">Estado Inseguro</button>
+            </div>
+          </div>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 23–25.<br>
+            • <strong>Silberschatz (7ma Ed.):</strong> Cap. 7.5.3 (pp. 265–267).<br>
+            • <strong>Stallings (5ta Ed.):</strong> Cap. 6.3 (pp. 266–271).
+          </div>
+        </details>
+      </article>
+
+      <!-- EJERCICIO 2 (TP4.old Ejercicio 1.d) -->
+      <article class="exercise-card" id="card-ej2_condiciones_riesgo_coffman">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-blue);">EJERCICIO 2 (10 PUNTOS) — CONDICIONES DE COFFMAN Y RIESGOS</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Identificación de Riesgos y Verificación de Condiciones de Coffman</h3>
+        
+        <div class="lab-callout banker">
+          <span class="lab-callout-badge">🏦 Laboratorio: Banco de Dijkstra + RAG</span>
+          <span class="lab-callout-action">
+            <strong>Laboratorio principal:</strong> <em>Banco de Dijkstra &rarr; Escenario Ejercicio 1</em> (analizar por qué no hay interbloqueo).<br>
+            <strong>Laboratorio de contraste:</strong> Abre <em>🕸️ RAG Studio</em> y selecciona <code>Preset Ciclo (Deadlock)</code> para observar visualmente cómo se manifiesta una espera circular real.
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          Con base en la situación analizada en el <strong>Ejercicio 1</strong> (Banco de Dijkstra), indica utilizando los switches segmentados si se verifican o no las siguientes 4 condiciones de Coffman en el sistema y selecciona el recurso de mayor restricción:
+        </p>
+
+        <div style="overflow-x: auto; margin-bottom: 18px;">
+          <table class="matrix-table" style="max-width:850px; text-align:left;">
+            <thead>
+              <tr>
+                <th style="width:200px;">Condición de Coffman</th>
+                <th style="width:130px; text-align:center;">¿Se Verifica?</th>
+                <th>Justificación Técnica (Seleccionar Opción)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Exclusión Mutua</strong></td>
+                <td style="text-align:center;">
+                  <div class="switch-group" data-ex="ej2_condiciones_riesgo_coffman" data-item="cond_exclusion_mutua">
+                    <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+                    <button type="button" class="switch-btn no" data-val="no">No</button>
+                  </div>
+                </td>
+                <td>
+                  <select class="custom-select" style="width:100%; font-size:0.8rem; padding:4px 8px;" data-ex="ej2_condiciones_riesgo_coffman" data-item="just_exclusion_mutua">
+                    <option value="">-- Seleccionar justificación técnica --</option>
+                    <option value="exclusivo">Los recursos no son compartibles; cada proceso requiere acceso exclusivo.</option>
+                    <option value="compartible">Los recursos son de lectura compartida simultánea por todos los procesos.</option>
+                    <option value="virtualizado">El sistema operativo virtualiza infinitas copias temporales de cada recurso.</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Retención y Espera</strong></td>
+                <td style="text-align:center;">
+                  <div class="switch-group" data-ex="ej2_condiciones_riesgo_coffman" data-item="cond_retener_esperar">
+                    <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+                    <button type="button" class="switch-btn no" data-val="no">No</button>
+                  </div>
+                </td>
+                <td>
+                  <select class="custom-select" style="width:100%; font-size:0.8rem; padding:4px 8px;" data-ex="ej2_condiciones_riesgo_coffman" data-item="just_retener_esperar">
+                    <option value="">-- Seleccionar justificación técnica --</option>
+                    <option value="retiene_y_espera">Los procesos retienen recursos asignados mientras esperan solicitar el resto de sus máximos.</option>
+                    <option value="libera_al_pedir">Cada proceso libera todos sus recursos previos antes de emitir una nueva solicitud.</option>
+                    <option value="pide_todo_al_inicio">Todos los procesos solicitan la totalidad de sus recursos en el arranque sin retener progresivamente.</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>No Expropiación</strong></td>
+                <td style="text-align:center;">
+                  <div class="switch-group" data-ex="ej2_condiciones_riesgo_coffman" data-item="cond_no_expropiacion">
+                    <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+                    <button type="button" class="switch-btn no" data-val="no">No</button>
+                  </div>
+                </td>
+                <td>
+                  <select class="custom-select" style="width:100%; font-size:0.8rem; padding:4px 8px;" data-ex="ej2_condiciones_riesgo_coffman" data-item="just_no_expropiacion">
+                    <option value="">-- Seleccionar justificación técnica --</option>
+                    <option value="no_desalojo">El kernel no revoca por la fuerza las asignaciones previas de los procesos activos.</option>
+                    <option value="expulsivo">El planificador expulsa y revoca los recursos periódicamente por tiempo cuántico.</option>
+                    <option value="prioridad_desalojo">Un proceso de mayor prioridad confisca inmediatamente los recursos de cualquier otro.</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Espera Circular</strong></td>
+                <td style="text-align:center;">
+                  <div class="switch-group" data-ex="ej2_condiciones_riesgo_coffman" data-item="cond_espera_circular">
+                    <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+                    <button type="button" class="switch-btn no" data-val="no">No</button>
+                  </div>
+                </td>
+                <td>
+                  <select class="custom-select" style="width:100%; font-size:0.8rem; padding:4px 8px;" data-ex="ej2_condiciones_riesgo_coffman" data-item="just_espera_circular">
+                    <option value="">-- Seleccionar justificación técnica --</option>
+                    <option value="sin_cadena_circular">No se forma una cadena circular cerrada de dependencias en este estado seguro.</option>
+                    <option value="hay_ciclo_bloqueante">Existe un ciclo dirigido cerrado ininterrumpido P0 -> P1 -> P2 -> P3 -> P4 -> P0.</option>
+                    <option value="recursos_agotados">Todos los recursos están en espera circular por falta absoluta de memoria.</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-field" style="max-width:550px;">
+          <label>¿Cuáles son los recursos que generan mayor restricción en el sistema inicial?</label>
+          <select class="custom-select" data-ex="ej2_condiciones_riesgo_coffman" data-item="recurso_mayor_restriccion">
+            <option value="">-- Seleccionar recursos críticos --</option>
+            <option value="c_d">Recursos C y D (cuentan únicamente con 1 sola instancia disponible libre)</option>
+            <option value="a_b">Recursos A y B (poseen exceso de instancias no asignadas)</option>
+            <option value="ninguno">Todos los recursos presentan idéntica holgura de asignación</option>
+          </select>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 5 y 12.<br>
+            • <strong>Silberschatz (7ma Ed.):</strong> Cap. 7.1–7.4 (pp. 257–264).
+          </div>
+        </details>
+      </article>
+
+      <!-- EJERCICIO 3 (TP4.old Ejercicio 1.e) -->
+      <article class="exercise-card" id="card-ej3_solicitud_dinamica_p1">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-green);">EJERCICIO 3 (10 PUNTOS) — BANCO DE DIJKSTRA [SOLICITUD DINÁMICA P1]</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Solicitud Dinámica de P1(0, 3, 0, 0) y Evaluación de Seguridad</h3>
+        
+        <div class="lab-callout banker">
+          <span class="lab-callout-badge">🏦 Laboratorio: Banco de Dijkstra</span>
+          <span class="lab-callout-action">
+            <strong>Pestaña superior:</strong> <em>Banco de Dijkstra (Banquero)</em> &nbsp;|&nbsp;
+            <strong>Caso a seleccionar:</strong> Selecciona <code>Cargar Escenario Ejercicio 1 (A,B,C,D)</code> y haz clic en el botón <code>🧪 Test Solicitud Dinámica</code>.
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          En este ejercicio se simula la petición dinámica de recursos por parte del proceso <strong>P1</strong>: <code>Solicitud1 = (0, 3, 0, 0)</code> sobre el estado del Ejercicio 1.<br>
+          Puedes probar esta solicitud exacta en el <strong>Banco de Dijkstra</strong> con el botón <em>"🧪 Test Solicitud Dinámica"</em>. Comprueba en la traza si se verifican las condiciones del algoritmo del banquero, completa el vector Disponible temporal y determina si otorgar la solicitud mantendría un estado seguro.
+        </p>
+
+        <div class="form-grid">
+          <div>
+            <label>Paso 1: ¿Solicitud1 (0,3,0,0) &le; Necesidad P1 (0,3,2,1)?</label>
+            <div class="switch-group" data-ex="ej3_solicitud_dinamica_p1" data-item="sol_menor_necesidad">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+          <div>
+            <label>Paso 2: ¿Solicitud1 (0,3,0,0) &le; Disponible (2,3,1,1)?</label>
+            <div class="switch-group" data-ex="ej3_solicitud_dinamica_p1" data-item="sol_menor_disponible">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; margin-bottom: 16px;">
+          <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">
+            Paso 3: Vector Disponible simulado temporal (Disponible - Solicitud1):
+          </label>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">A:</span> <input type="number" class="matrix-input" data-ex="ej3_solicitud_dinamica_p1" data-item="disp_sim_a"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">B:</span> <input type="number" class="matrix-input" data-ex="ej3_solicitud_dinamica_p1" data-item="disp_sim_b"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">C:</span> <input type="number" class="matrix-input" data-ex="ej3_solicitud_dinamica_p1" data-item="disp_sim_c"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">D:</span> <input type="number" class="matrix-input" data-ex="ej3_solicitud_dinamica_p1" data-item="disp_sim_d"></div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label>¿Puede concederse inmediatamente la solicitud?</label>
+            <div class="switch-group" data-ex="ej3_solicitud_dinamica_p1" data-item="puede_concederse">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+          <div>
+            <label>¿La concesión mantiene al sistema en un estado seguro?</label>
+            <div class="switch-group" data-ex="ej3_solicitud_dinamica_p1" data-item="mantiene_seguro">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 26.<br>
+            • <strong>Silberschatz (7ma Ed.):</strong> Cap. 7.5.4 (pp. 267–268).
+          </div>
+        </details>
+      </article>
+
+      <!-- EJERCICIO 4 (TP4.old Ejercicio 2) -->
+      <article class="exercise-card" id="card-ej4_reduccion_grafos_tabla">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-purple);">EJERCICIO 4 (10 PUNTOS) — RAG STUDIO [PRESET EJERCICIO 2]</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Reducción Práctica de Grafos de Asignación de Recursos</h3>
+        
+        <div class="lab-callout rag">
+          <span class="lab-callout-badge">🕸️ Laboratorio: RAG Studio (Grafo SVG)</span>
+          <span class="lab-callout-action">
+            <strong>Pestaña superior:</strong> <em>🕸️ RAG Studio (Grafo SVG)</em> &nbsp;|&nbsp;
+            <strong>Preset a seleccionar:</strong> Haz clic en el botón <code>Preset Ejercicio 2</code> y luego presiona <code>⚡ Reducir Grafo (Paso a Paso)</code>.
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          Para resolver este ejercicio paso a paso de manera interactiva, ve a <strong>RAG Studio</strong>, selecciona <strong>"Preset Ejercicio 2"</strong> y haz clic en <strong>"⚡ Reducir Grafo (Paso a Paso)"</strong>.<br>
+          Observa cómo con el vector <strong>Disponible inicial = (1, 0, 1)</strong>, el primer proceso en satisfacer su solicitud es <strong>P3</strong> (libera Alloc=(0,3,2) &rarr; Disponible <code>(1, 3, 3)</code>), seguido por <strong>P2</strong> (libera Alloc=(1,0,1) &rarr; Disponible <code>(2, 3, 4)</code>). Vuelca los valores observados en la siguiente tabla:
+        </p>
+
+        <div style="overflow-x: auto; margin-bottom: 18px;">
+          <table class="matrix-table" style="max-width:720px;">
+            <thead>
+              <tr>
+                <th>Iteración</th>
+                <th colspan="3">Recursos Disponibles (A B C)</th>
+                <th>Proceso Eliminado</th>
+                <th colspan="3">Recursos Liberados (A B C)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Inicial</strong></td>
+                <td>1</td><td>0</td><td>1</td>
+                <td>—</td>
+                <td>—</td><td>—</td><td>—</td>
+              </tr>
+              <tr>
+                <td><strong>1</strong></td>
+                <td>1</td><td>0</td><td>1</td>
+                <td>
+                  <select class="custom-select" style="width:110px; padding:3px 6px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_proc_1">
+                    <option value="">-- Proceso --</option>
+                    <option value="p0">P0</option><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4</option>
+                  </select>
+                </td>
+                <td><input type="number" class="matrix-input" style="width:40px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_lib_1_a"></td>
+                <td><input type="number" class="matrix-input" style="width:40px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_lib_1_b"></td>
+                <td><input type="number" class="matrix-input" style="width:40px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_lib_1_c"></td>
+              </tr>
+              <tr>
+                <td><strong>2</strong></td>
+                <td><input type="number" class="matrix-input" style="width:40px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_disp_1_a"></td>
+                <td><input type="number" class="matrix-input" style="width:40px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_disp_1_b"></td>
+                <td><input type="number" class="matrix-input" style="width:40px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_disp_1_c"></td>
+                <td>
+                  <select class="custom-select" style="width:110px; padding:3px 6px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_proc_2">
+                    <option value="">-- Proceso --</option>
+                    <option value="p0">P0</option><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4</option>
+                  </select>
+                </td>
+                <td colspan="3" style="font-size:0.78rem; color:var(--text-muted);">(Libera su asignación)</td>
+              </tr>
+              <tr>
+                <td><strong>3</strong></td>
+                <td><input type="number" class="matrix-input" style="width:40px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_disp_2_a"></td>
+                <td><input type="number" class="matrix-input" style="width:40px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_disp_2_b"></td>
+                <td><input type="number" class="matrix-input" style="width:40px;" data-ex="ej4_reduccion_grafos_tabla" data-item="red_disp_2_c"></td>
+                <td colspan="4" style="font-size:0.78rem; color:var(--text-secondary); text-align:left; padding-left:14px;">Todos los procesos restantes pueden concluir sucesivamente.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label>¿Queda el grafo completamente reducido?</label>
+            <div class="switch-group" data-ex="ej4_reduccion_grafos_tabla" data-item="grafo_reducido_total">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+          <div>
+            <label>¿Existe interbloqueo en el sistema?</label>
+            <div class="switch-group" data-ex="ej4_reduccion_grafos_tabla" data-item="existe_interbloqueo">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 32–35.<br>
+            • <strong>Carretero:</strong> Cap. 4.5.1 (pp. 142–145).
+          </div>
+        </details>
+      </article>
+
+      <!-- EJERCICIO 5 (TP4.old Ejercicio 3.a) -->
+      <article class="exercise-card" id="card-ej5_modelado_rag_matrices">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-purple);">EJERCICIO 5 (10 PUNTOS) — RAG STUDIO [PRESET SILBERSCHATZ]</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Modelado a partir del Grafo RAG: Asignación, Demanda y Disponible</h3>
+        
+        <div class="lab-callout rag">
+          <span class="lab-callout-badge">🕸️ Laboratorio: RAG Studio (Grafo SVG)</span>
+          <span class="lab-callout-action">
+            <strong>Pestaña superior:</strong> <em>🕸️ RAG Studio (Grafo SVG)</em> &nbsp;|&nbsp;
+            <strong>Preset a seleccionar:</strong> Haz clic en el botón <code>Preset Silberschatz</code>.
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          Abre la pestaña <strong>RAG Studio</strong> y pulsa el botón <strong>"Preset Silberschatz"</strong>.<br>
+          Examina visualmente el grafo SVG en el lienzo: cuenta las aristas verdes de asignación ($R_j \to P_i$) para completar la <strong>Matriz Asignación</strong> y calcula las instancias libres para deducir el <strong>Vector Disponible inicial</strong> (con un total físico de A=10, B=5, C=7). Luego resta la Asignación de los Máximos dados para obtener la <strong>Matriz Necesidad</strong>:
+        </p>
+
+        <!-- Vector Disponible RAG -->
+        <div style="margin-bottom: 16px;">
+          <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Vector de Recursos Disponibles inicial (A, B, C):</label>
+          <div style="display: flex; gap: 10px;">
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">A:</span> <input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="disp_rag_a"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">B:</span> <input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="disp_rag_b"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">C:</span> <input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="disp_rag_c"></div>
+          </div>
+        </div>
+
+        <!-- Matrices Asignación y Necesidad para Completar -->
+        <div style="overflow-x: auto; margin-bottom: 18px;">
+          <table class="matrix-table" style="max-width:800px;">
+            <thead>
+              <tr>
+                <th rowspan="2">Proc</th>
+                <th colspan="3" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green);">Matriz Asignación (Del RAG)</th>
+                <th colspan="3">Máximo (Max)</th>
+                <th colspan="3" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">Matriz Necesidad (Max - Alloc)</th>
+              </tr>
+              <tr>
+                <th>A</th><th>B</th><th>C</th>
+                <th>A</th><th>B</th><th>C</th>
+                <th>A</th><th>B</th><th>C</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>P0</strong></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p0_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p0_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p0_c"></td>
+                <td>7</td><td>5</td><td>3</td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p0_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p0_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p0_c"></td>
+              </tr>
+              <tr>
+                <td><strong>P1</strong></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p1_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p1_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p1_c"></td>
+                <td>3</td><td>2</td><td>2</td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p1_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p1_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p1_c"></td>
+              </tr>
+              <tr>
+                <td><strong>P2</strong></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p2_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p2_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p2_c"></td>
+                <td>9</td><td>0</td><td>2</td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p2_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p2_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p2_c"></td>
+              </tr>
+              <tr>
+                <td><strong>P3</strong></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p3_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p3_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p3_c"></td>
+                <td>2</td><td>2</td><td>2</td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p3_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p3_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p3_c"></td>
+              </tr>
+              <tr>
+                <td><strong>P4</strong></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p4_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p4_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="alloc_p4_c"></td>
+                <td>4</td><td>3</td><td>3</td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p4_a"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p4_b"></td>
+                <td><input type="number" class="matrix-input" data-ex="ej5_modelado_rag_matrices" data-item="need_p4_c"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 27.<br>
+            • <strong>Silberschatz (7ma Ed.):</strong> Cap. 7.5.3 (pp. 265–267).
+          </div>
+        </details>
+      </article>
+
+      <!-- EJERCICIO 6 (TP4.old Ejercicio 3.b, 3.c, 3.d) -->
+      <article class="exercise-card" id="card-ej6_evaluacion_solicitudes_rag">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-green);">EJERCICIO 6 (10 PUNTOS) — BANCO DE DIJKSTRA [ESCENARIO SILBERSCHATZ]</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Evaluación de Solicitudes Dinámicas en RAG Clásico</h3>
+        
+        <div class="lab-callout banker">
+          <span class="lab-callout-badge">🏦 Laboratorio: Banco de Dijkstra</span>
+          <span class="lab-callout-action">
+            <strong>Pestaña superior:</strong> <em>Banco de Dijkstra (Banquero)</em> &nbsp;|&nbsp;
+            <strong>Caso a seleccionar:</strong> Haz clic en el botón <code>Cargar Escenario Silberschatz (A,B,C)</code> para simular el sistema del Ejercicio 5 y pulsa <code>▶ Auto-Ejecutar</code> para comprobar el estado seguro inicial.
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          Para verificar dinámicamente este sistema (modelado en el Ejercicio 5), ve al <strong>Banco de Dijkstra</strong> y selecciona <strong>"Cargar Escenario Silberschatz (A,B,C)"</strong>.<br>
+          Comprueba el estado seguro con el vector inicial <code>Disponible = (3, 3, 2)</code> y evalúa si es seguro otorgar de inmediato las solicitudes hipotéticas de <strong>P0(0, 2, 0)</strong> y de <strong>P1(1, 0, 2)</strong>:
+        </p>
+
+        <div class="form-grid">
+          <div>
+            <label>¿Se encuentra el sistema inicialmente en un estado seguro?</label>
+            <div class="switch-group" data-ex="ej6_evaluacion_solicitudes_rag" data-item="estado_inicial_seguro">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+          <div>
+            <label>Si P0 realiza la solicitud (0, 2, 0), ¿es posible atenderla de inmediato?</label>
+            <div class="switch-group" data-ex="ej6_evaluacion_solicitudes_rag" data-item="atender_p0">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+          <div>
+            <label>Y si fuera P1 quien realiza la solicitud (1, 0, 2), ¿se puede atender?</label>
+            <div class="switch-group" data-ex="ej6_evaluacion_solicitudes_rag" data-item="atender_p1">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 27.<br>
+            • <strong>Silberschatz (7ma Ed.):</strong> Cap. 7.5.3 (pp. 265–267).
+          </div>
+        </details>
+      </article>
+
+      <!-- EJERCICIO 7 (TP4.old Ejercicio 4.a) -->
+      <article class="exercise-card" id="card-ej7_deteccion_bloqueos_multi_instancia">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-amber);">EJERCICIO 7 (10 PUNTOS) — ALGORITMO DE DETECCIÓN MULTI-INSTANCIA</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Algoritmo de Detección de Bloqueos en Sistemas Multi-Instancia</h3>
+        
+        <div class="lab-callout theory">
+          <span class="lab-callout-badge">🔍 Algoritmo Matricial de Detección</span>
+          <span class="lab-callout-action">
+            <strong>Método de Resolución:</strong> Aplica el <em>Algoritmo de Detección multi-instancia</em> (Silberschatz Cap. 7.6.2). Con el vector inicial <code>Disponible = (2, 1, 0, 1)</code>, evalúa iterativamente la condición de avance: <code>Solicitud &le; Work</code> fila por fila.
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          A diferencia del algoritmo de evitación (Banquero), este algoritmo no evalúa demandas máximas a futuro, sino solicitudes ya cursadas y bloqueadas. Considérese el estado con <strong>Disponible = (2, 1, 0, 1)</strong>, Asignación y Solicitudes actuales:
+        </p>
+
+        <div style="overflow-x: auto; margin-bottom: 16px;">
+          <table class="matrix-table" style="max-width:650px;">
+            <thead>
+              <tr>
+                <th rowspan="2">Proc</th>
+                <th colspan="4">Asignación</th>
+                <th colspan="4">Necesidad / Solicitud Actual</th>
+              </tr>
+              <tr>
+                <th>A</th><th>B</th><th>C</th><th>D</th>
+                <th>A</th><th>B</th><th>C</th><th>D</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>P0</td><td>1</td><td>0</td><td>0</td><td>2</td><td>2</td><td>1</td><td>2</td><td>0</td></tr>
+              <tr><td>P1</td><td>4</td><td>0</td><td>3</td><td>1</td><td>2</td><td>0</td><td>1</td><td>2</td></tr>
+              <tr><td>P2</td><td>0</td><td>1</td><td>0</td><td>1</td><td>2</td><td>0</td><td>1</td><td>0</td></tr>
+              <tr><td>P3</td><td>2</td><td>4</td><td>1</td><td>1</td><td>0</td><td>3</td><td>4</td><td>2</td></tr>
+              <tr><td>P4</td><td>2</td><td>1</td><td>2</td><td>0</td><td>1</td><td>4</td><td>0</td><td>1</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label>¿Fue posible finalizar algún proceso inicialmente con Work=(2,1,0,1)?</label>
+            <div class="switch-group" data-ex="ej7_deteccion_bloqueos_multi_instancia" data-item="finalizo_alguno_inicial">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+          <div>
+            <label>¿Existe interbloqueo en el sistema?</label>
+            <div class="switch-group" data-ex="ej7_deteccion_bloqueos_multi_instancia" data-item="existe_bloqueo">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+          <div>
+            <label>Cantidad de procesos que permanecen bloqueados:</label>
+            <input type="number" min="0" max="5" class="matrix-input" style="width:70px;" data-ex="ej7_deteccion_bloqueos_multi_instancia" data-item="cantidad_procesos_bloqueados">
+          </div>
+          <div>
+            <label>Procesos involucrados en el interbloqueo:</label>
+            <select class="custom-select" data-ex="ej7_deteccion_bloqueos_multi_instancia" data-item="procesos_bloqueados_lista">
+              <option value="">-- Seleccionar procesos --</option>
+              <option value="p0-p1-p2-p3-p4">Todos los procesos: P0, P1, P2, P3 y P4</option>
+              <option value="p1-p3">Únicamente los procesos P1 y P3</option>
+              <option value="ninguno">Ningún proceso</option>
+            </select>
+          </div>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 36–39.<br>
+            • <strong>Silberschatz (7ma Ed.):</strong> Cap. 7.6.2 (pp. 269–271).
+          </div>
+        </details>
+      </article>
+
+      <!-- EJERCICIO 8 (TP4.old Ejercicio 4.b) -->
+      <article class="exercise-card" id="card-ej8_recuperacion_seleccion_victima">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-amber);">EJERCICIO 8 (10 PUNTOS) — RECUPERACIÓN POR SELECCIÓN DE VÍCTIMA</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Recuperación por Selección de Víctima según Prioridades</h3>
+        
+        <div class="lab-callout theory">
+          <span class="lab-callout-badge">🎯 Selección de Víctima y Recuperación</span>
+          <span class="lab-callout-action">
+            <strong>Caso de estudio:</strong> Continuación directa del interbloqueo del <strong>Ejercicio 7</strong>. Aplica el criterio de desalojo por prioridad: <code>P0:2, P1:1, P2:3, P3:1, P4:0</code> (menor valor numérico = menor prioridad).
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          Dado el interbloqueo detectado en el Ejercicio 7 y las prioridades de proceso dadas: <code>P0:2, P1:1, P2:3, P3:1, P4:0</code>.<br>
+          Identifica al proceso de menor prioridad (víctima a abortar según Silberschatz Cap. 7.7), simula la liberación total de sus recursos asignados ($Alloc$) sumándolos al Disponible y responde:
+        </p>
+
+        <div class="form-grid">
+          <div>
+            <label>Proceso identificado con menor prioridad (víctima):</label>
+            <select class="custom-select" data-ex="ej8_recuperacion_seleccion_victima" data-item="proceso_victima">
+              <option value="">-- Proceso víctima --</option>
+              <option value="p0">P0</option><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4 (Prioridad 0)</option>
+            </select>
+          </div>
+          <div>
+            <label>¿El sistema se recupera completamente tras abortar a la víctima?</label>
+            <div class="switch-group" data-ex="ej8_recuperacion_seleccion_victima" data-item="recupera_completo">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; margin-bottom: 16px;">
+          <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">
+            Vector Disponible actualizado tras liberar todos los recursos asignados a la víctima (Disponible + Alloc):
+          </label>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">A:</span> <input type="number" class="matrix-input" data-ex="ej8_recuperacion_seleccion_victima" data-item="disp_recup_a"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">B:</span> <input type="number" class="matrix-input" data-ex="ej8_recuperacion_seleccion_victima" data-item="disp_recup_b"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">C:</span> <input type="number" class="matrix-input" data-ex="ej8_recuperacion_seleccion_victima" data-item="disp_recup_c"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">D:</span> <input type="number" class="matrix-input" data-ex="ej8_recuperacion_seleccion_victima" data-item="disp_recup_d"></div>
+          </div>
+        </div>
+
+        <div class="form-field" style="max-width:450px;">
+          <label>Primer proceso que logra finalizar tras la liberación:</label>
+          <select class="custom-select" data-ex="ej8_recuperacion_seleccion_victima" data-item="primer_proceso_desbloqueado">
+            <option value="">-- Seleccionar proceso --</option>
+            <option value="p0">Proceso P0 (su Necesidad (2,1,2,0) es &le; Disponible)</option>
+            <option value="p1">Proceso P1</option>
+            <option value="p2">Proceso P2</option>
+          </select>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 40–44.<br>
+            • <strong>Silberschatz (7ma Ed.):</strong> Cap. 7.7 (pp. 271–274).
+          </div>
+        </details>
+      </article>
+
+      <!-- EJERCICIO 9 (TP4.old Ejercicio 4.c) -->
+      <article class="exercise-card" id="card-ej9_solicitud_p2_actualizacion">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-amber);">EJERCICIO 9 (10 PUNTOS) — SOLICITUD DE P2 Y EVALUACIÓN DE DETECCIÓN</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Solicitud de P2(1, 1, 0, 0) y Actualización Matricial</h3>
+        
+        <div class="lab-callout theory">
+          <span class="lab-callout-badge">🔄 Solicitud Dinámica y Re-Detección</span>
+          <span class="lab-callout-action">
+            <strong>Caso de estudio:</strong> Retoma el estado original del <strong>Ejercicio 7</strong> (Disponible = (2, 1, 0, 1)) para evaluar el impacto de una solicitud puntual de <code>P2: (1, 1, 0, 0)</code>.
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          Partiendo del estado original del <strong>Ejercicio 7</strong> (Disponible = (2, 1, 0, 1)), supóngase que el proceso <strong>P2</strong> solicita: <code>Solicitud_P2 = (1, 1, 0, 0)</code>. Verifica si cumple las condiciones operativas, calcula el vector Disponible provisional y determina si surge un nuevo interbloqueo:
+        </p>
+
+        <div class="form-grid">
+          <div>
+            <label>¿La solicitud es &le; Necesidad de P2 (2, 0, 1, 0)?</label>
+            <div class="switch-group" data-ex="ej9_solicitud_p2_actualizacion" data-item="sol_p2_menor_necesidad">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+          <div>
+            <label>¿Existen recursos suficientes disponibles (2, 1, 0, 1) para atenderla?</label>
+            <div class="switch-group" data-ex="ej9_solicitud_p2_actualizacion" data-item="sol_p2_menor_disponible">
+              <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+              <button type="button" class="switch-btn no" data-val="no">No</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; margin-bottom: 16px;">
+          <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">
+            Si la solicitud se concediera provisionalmente, ¿cómo quedaría el vector Disponible?:
+          </label>
+          <div style="display: flex; gap: 10px;">
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">A:</span> <input type="number" class="matrix-input" data-ex="ej9_solicitud_p2_actualizacion" data-item="disp_p2_a"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">B:</span> <input type="number" class="matrix-input" data-ex="ej9_solicitud_p2_actualizacion" data-item="disp_p2_b"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">C:</span> <input type="number" class="matrix-input" data-ex="ej9_solicitud_p2_actualizacion" data-item="disp_p2_c"></div>
+            <div><span style="font-size:0.75rem; color:var(--text-muted);">D:</span> <input type="number" class="matrix-input" data-ex="ej9_solicitud_p2_actualizacion" data-item="disp_p2_d"></div>
+          </div>
+        </div>
+
+        <div>
+          <label>Aplicando nuevamente el algoritmo de detección: ¿Surge un nuevo interbloqueo?</label>
+          <div class="switch-group" data-ex="ej9_solicitud_p2_actualizacion" data-item="surge_interbloqueo" style="margin-top:6px;">
+            <button type="button" class="switch-btn yes" data-val="si">Sí</button>
+            <button type="button" class="switch-btn no" data-val="no">No</button>
+          </div>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 26 y 37.<br>
+            • <strong>Silberschatz (7ma Ed.):</strong> Cap. 7.5.4 y 7.6.
+          </div>
+        </details>
+      </article>
+
+      <!-- EJERCICIO 10 (Material Teórico Unidad 4) -->
+      <article class="exercise-card" id="card-ej10_estrategias_combinadas_jerarquia">
+        <div class="ex-top">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--accent-cyan);">EJERCICIO 10 (10 PUNTOS) — ESTRATEGIAS COMBINADAS Y JERARQUÍA</span>
+          <span class="ex-badge pending">Pendiente</span>
+        </div>
+        <h3 class="ex-title">Estrategias Combinadas y Jerarquía Lineal de Recursos</h3>
+        
+        <div class="lab-callout theory">
+          <span class="lab-callout-badge">📚 Síntesis Teórica de Cátedra</span>
+          <span class="lab-callout-action">
+            <strong>Marco Conceptual:</strong> Enfoques combinados y partición modular de recursos en clases disjuntas (Silberschatz Cap. 7.8; Diapositivas 47-48).
+          </span>
+        </div>
+
+        <p class="ex-desc">
+          En sistemas operativos reales, ninguna técnica aislada es óptima para todos los tipos de recursos. Asocia cada clase disjunta con la estrategia técnica recomendada por la cátedra e indica el mecanismo que previene interbloqueos entre diferentes clases:
+        </p>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Estrategia para Espacio de Swap:</label>
+            <select class="custom-select" data-ex="ej10_estrategias_combinadas_jerarquia" data-item="clase_swap">
+              <option value="">-- Seleccionar estrategia --</option>
+              <option value="pre_asignacion">Pre-asignación total: reserva previa de toda la demanda máxima</option>
+              <option value="banquero">Algoritmo del banquero dinámico página a página</option>
+              <option value="avestruz">Ignorar el problema de swap</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Estrategia para Recursos de Proceso (Descriptores / Ficheros):</label>
+            <select class="custom-select" data-ex="ej10_estrategias_combinadas_jerarquia" data-item="clase_procesos">
+              <option value="">-- Seleccionar estrategia --</option>
+              <option value="banquero">Evitación / Algoritmo del Banquero al declarar recursos requeridos</option>
+              <option value="expropiacion">Expropiación involuntaria constante</option>
+              <option value="avestruz">Ignorar solicitudes de archivos</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Estrategia para Memoria Principal (Marcos de Página):</label>
+            <select class="custom-select" data-ex="ej10_estrategias_combinadas_jerarquia" data-item="clase_memoria">
+              <option value="">-- Seleccionar estrategia --</option>
+              <option value="expropiacion">Prevención mediante expropiación (desalojo de páginas hacia swap)</option>
+              <option value="pre_asignacion">Pre-asignación estática de toda la RAM física</option>
+              <option value="espera_circular">Espera circular estricta en direcciones de memoria</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Mecanismo para evitar interbloqueos entre distintas clases:</label>
+            <select class="custom-select" data-ex="ej10_estrategias_combinadas_jerarquia" data-item="mecanismo_interclase">
+              <option value="">-- Seleccionar mecanismo --</option>
+              <option value="ordenamiento_lineal">Ordenamiento lineal estricto en la solicitud entre clases</option>
+              <option value="reinicio_driver">Reinicio de controladores de bus</option>
+              <option value="roll_back_total">Rollback indiscriminado del núcleo</option>
+            </select>
+          </div>
+        </div>
+
+        <details class="biblio-accordion">
+          <summary class="biblio-summary">📖 Dónde estudiar este tema en la bibliografía oficial</summary>
+          <div class="biblio-content">
+            • <strong>Diapositivas Cátedra:</strong> Clase 5 - Unidad 4, Diap. 47.<br>
+            • <strong>Silberschatz (7ma Ed.):</strong> Cap. 7.8 (pp. 274–275).
+          </div>
+        </details>
+      </article>
+
+    </main>
+
+    <!-- ==================== MODAL GUÍA BIBLIOGRÁFICA ==================== -->
+    <div class="modal-overlay" id="modal-biblio">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">📚 Guía Bibliográfica por Capítulo — Unidad 4</h3>
+          <button class="modal-close-btn" id="modal-biblio-close">&times;</button>
+        </div>
+        <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+          <p style="margin-bottom: 14px;">Para resolver las actividades prácticas y matriciales de este práctico, consulta las fuentes oficiales de cátedra:</p>
+          <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 10px;">
+            <li><strong>Silberschatz, Galvin, Gagne:</strong> <em>Fundamentos de Sistemas Operativos</em> (7ma Edición), Capítulo 7: "Interbloqueos" (pp. 257–280).</li>
+            <li><strong>Carretero, García, De Miguel, Pérez:</strong> <em>Sistemas Operativos: Una Visión Aplicada</em>, Capítulo 4: "Interbloqueos" (pp. 131–158).</li>
+            <li><strong>William Stallings:</strong> <em>Sistemas Operativos: Aspectos Internos y Principios de Diseño</em> (5ta Edición), Capítulo 6: "Interbloqueo e Inanición" (pp. 253–286).</li>
+            <li><strong>Andrew S. Tanenbaum:</strong> <em>Sistemas Operativos Modernos</em> (3ra Edición), Capítulo 6: "Interbloqueos" (pp. 431–462).</li>
+            <li><strong>Diapositivas Oficiales de Cátedra (Ing. María Fernanda Vázquez):</strong> Unidad 4: "Interbloqueo (Bloqueo Mutuo)", Diapositivas 1 a 48.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL GUÍA GIT / GITHUB ==================== -->
+    <div class="modal-overlay" id="modal-git">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">🚀 Guía de Entrega y Autoevaluación en GitHub</h3>
+          <button class="modal-close-btn" id="modal-git-close">&times;</button>
+        </div>
+        <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+          <ol style="padding-left: 20px; display: flex; flex-direction: column; gap: 12px;">
+            <li><strong>Completar las Tablas y Matrices:</strong> Resuelve los 10 ejercicios interactivos (matrices numéricas, tablas de ejecución, switches y ordenamientos).</li>
+            <li><strong>Exportar Respuestas:</strong> Pulsa el botón <strong>"💾 Exportar Respuestas (.json)"</strong> y guarda el archivo <code>respuestas_tp4.json</code> en la raíz de tu repositorio clonado.</li>
+            <li><strong>Autoevaluación Local (Opcional):</strong> Ejecuta en consola:
+              <pre style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; font-family:'Fira Code', monospace; margin-top:4px;">python autograder_tp4.py respuestas_tp4.json</pre>
+            </li>
+            <li><strong>Subir Entrega a GitHub:</strong>
+              <pre style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; font-family:'Fira Code', monospace; margin-top:4px;">git add respuestas_tp4.json
+git commit -m "Entrega TP4 - [Tu Nombre]"
+git push origin main</pre>
+            </li>
+            <li><strong>Verificar Calificación:</strong> Dirígete a la pestaña <strong>Actions</strong> de tu repositorio en GitHub para ver el badge y el reporte automático en Markdown.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer-main">
+      <p>Cátedra: Teoría de Sistemas Operativos (TSO) — Ciclo Lectivo 2026</p>
+      <p>Universidad Nacional de Jujuy (UNJu) — Facultad de Ingeniería (FI)</p>
+      <p style="margin-top: 6px; font-size: 0.78rem; color: var(--text-muted);">Diseño interactivo con resolución matricial y autoevaluación continua</p>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
