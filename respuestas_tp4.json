@@ -1,0 +1,152 @@
+{
+  "student": {
+    "name": "Ruben Hector Mendez",
+    "dni": "LI006",
+    "career": "LICENCIATURA EN INFORMÁTICA EDUCATIVA",
+    "github_user": "28036334-RHM80"
+  },
+  "tp_metadata": {
+    "tp_id": "TSO-2026-TP4",
+    "title": "TP N° 4: Gestión de Recursos e Interbloqueos (Deadlocks)",
+    "catedra": "Teoría de Sistemas Operativos - UNJu Facultad de Ingeniería",
+    "ciclo_lectivo": "2026",
+    "submitted_at": "2026-09-22T22:46:32.242Z"
+  },
+  "answers": {
+    "ej1_banquero_necesidad_y_ejecucion": {
+      "secuencia_segura": "p1-p0-p2-p3-p4",
+      "estado_sistema": "seguro",
+      "iter1_proc": "p0",
+      "iter3_proc": "p2",
+      "iter2_proc": "p1",
+      "iter4_proc": "p3",
+      "iter5_proc": "p4",
+      "need_p0_a": "0",
+      "need_p1_a": "0",
+      "need_p2_a": "1",
+      "need_p3_a": "0",
+      "need_p4_a": "0",
+      "need_p0_b": "3",
+      "need_p1_b": "3",
+      "need_p2_b": "0",
+      "need_p3_b": "2",
+      "need_p4_b": "1",
+      "need_p0_c": "0",
+      "need_p1_c": "2",
+      "need_p2_c": "1",
+      "need_p3_c": "4",
+      "need_p4_c": "4",
+      "need_p0_d": "0",
+      "need_p1_d": "1",
+      "need_p2_d": "2",
+      "need_p3_d": "0",
+      "need_p4_d": "1"
+    },
+    "ej2_condiciones_riesgo_coffman": {
+      "cond_exclusion_mutua": "si",
+      "cond_retener_esperar": "si",
+      "cond_no_expropiacion": "si",
+      "cond_espera_circular": "no",
+      "just_espera_circular": "sin_cadena_circular",
+      "just_no_expropiacion": "no_desalojo",
+      "just_retener_esperar": "retiene_y_espera",
+      "just_exclusion_mutua": "exclusivo",
+      "recurso_mayor_restriccion": "c_d"
+    },
+    "ej3_solicitud_dinamica_p1": {
+      "sol_menor_necesidad": "si",
+      "sol_menor_disponible": "si",
+      "disp_sim_a": "2",
+      "disp_sim_b": "0",
+      "disp_sim_c": "1",
+      "disp_sim_d": "1",
+      "mantiene_seguro": "no",
+      "puede_concederse": "no"
+    },
+    "ej4_reduccion_grafos_tabla": {
+      "grafo_reducido_total": "si",
+      "existe_interbloqueo": "no",
+      "red_proc_1": "p3",
+      "red_lib_1_a": "0",
+      "red_lib_1_b": "3",
+      "red_lib_1_c": "2",
+      "red_proc_2": "p2",
+      "red_disp_1_a": "1",
+      "red_disp_1_b": "3",
+      "red_disp_1_c": "3",
+      "red_disp_2_a": "2",
+      "red_disp_2_b": "3",
+      "red_disp_2_c": "4"
+    },
+    "ej5_modelado_rag_matrices": {
+      "disp_rag_a": "3",
+      "disp_rag_b": "3",
+      "disp_rag_c": "2",
+      "alloc_p0_a": "0",
+      "alloc_p1_a": "2",
+      "alloc_p2_a": "3",
+      "alloc_p3_a": "2",
+      "alloc_p4_a": "0",
+      "alloc_p0_b": "1",
+      "alloc_p1_b": "0",
+      "alloc_p2_b": "0",
+      "alloc_p3_b": "1",
+      "alloc_p4_b": "0",
+      "alloc_p0_c": "0",
+      "alloc_p1_c": "0",
+      "alloc_p2_c": "2",
+      "alloc_p3_c": "1",
+      "alloc_p4_c": "2",
+      "need_p0_a": "7",
+      "need_p1_a": "1",
+      "need_p2_a": "6",
+      "need_p3_a": "0",
+      "need_p4_a": "4",
+      "need_p0_b": "4",
+      "need_p1_b": "2",
+      "need_p2_b": "0",
+      "need_p3_b": "1",
+      "need_p4_b": "3",
+      "need_p0_c": "3",
+      "need_p1_c": "2",
+      "need_p2_c": "0",
+      "need_p3_c": "1",
+      "need_p4_c": "1"
+    },
+    "ej6_evaluacion_solicitudes_rag": {
+      "estado_inicial_seguro": "si",
+      "atender_p0": "no",
+      "atender_p1": "si"
+    },
+    "ej7_deteccion_bloqueos_multi_instancia": {
+      "finalizo_alguno_inicial": "no",
+      "existe_bloqueo": "si",
+      "cantidad_procesos_bloqueados": "5",
+      "procesos_bloqueados_lista": "p0-p1-p2-p3-p4"
+    },
+    "ej8_recuperacion_seleccion_victima": {
+      "proceso_victima": "p4",
+      "recupera_completo": "si",
+      "primer_proceso_desbloqueado": "p0",
+      "disp_recup_a": "4",
+      "disp_recup_b": "2",
+      "disp_recup_c": "2",
+      "disp_recup_d": "1"
+    },
+    "ej9_solicitud_p2_actualizacion": {
+      "sol_p2_menor_necesidad": "no",
+      "sol_p2_menor_disponible": "si",
+      "surge_interbloqueo": "si",
+      "disp_p2_a": "1",
+      "disp_p2_b": "0",
+      "disp_p2_c": "0",
+      "disp_p2_d": "1"
+    },
+    "ej10_estrategias_combinadas_jerarquia": {
+      "clase_swap": "pre_asignacion",
+      "clase_procesos": "banquero",
+      "clase_memoria": "expropiacion",
+      "mecanismo_interclase": "ordenamiento_lineal"
+    }
+  }
+}
